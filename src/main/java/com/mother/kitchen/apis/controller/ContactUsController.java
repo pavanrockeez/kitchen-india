@@ -28,15 +28,10 @@ public class ContactUsController {
 	public ResponseEntity<ContactUsResponse> saveContactUsDetails(@RequestBody ContactUs req){
 		ContactUsResponse response = null;
 		Status status = null;
-		long data;
 		try {
-			data = contactUsService.saveContactUs(req);
-			if(data > 0) {
-				status = Status.builder().code("201").type("SUCCESS").message("QUERY_SAVED")
-						.description("Query Reached We Will Reach Out To you").build();
-				response = ContactUsResponse.builder().data(data).status(status).build();
+			response = contactUsService.saveContactUs(req);
+			if(response.getStatus().getCode().equalsIgnoreCase("201")) {
 				return new ResponseEntity<ContactUsResponse>(response,HttpStatus.OK);
-					
 			}
 		} catch (MessagingException e) {
 			status = Status.builder().code("400").type("FAILUTE").message(e.getMessage())
@@ -44,9 +39,6 @@ public class ContactUsController {
 			response = ContactUsResponse.builder().status(status).build();
 			return new ResponseEntity<ContactUsResponse>(response,HttpStatus.BAD_REQUEST);
 		}
-		status = Status.builder().code("400").type("FAILUTE").message("FAILED_TO_SAVE")
-				.description("Failed to save query").build();
-		response = ContactUsResponse.builder().data(data).status(status).build();
 		return new ResponseEntity<ContactUsResponse>(response,HttpStatus.BAD_REQUEST);
 		
 	}
@@ -54,18 +46,11 @@ public class ContactUsController {
 	@PostMapping("save-mobile-email")
 	public ResponseEntity<ContactUsResponse> saveUserEmail(@RequestBody UserEmailMobileNumber req){
 		ContactUsResponse response = null;
-		Status status = null;
-		long data = contactUsService.saveUserEmailAndMobileNumber(req);
-		if(data > 0) {
-			status = Status.builder().code("201").type("SUCCESS").message("EMAIL_REACHED")
-					.description("Successfully email reached").build();
-			response = ContactUsResponse.builder().data(data).status(status).build();
+		response= contactUsService.saveUserEmailAndMobileNumber(req);
+		if(response.getStatus().getCode().equalsIgnoreCase("201")) {
 			return new ResponseEntity<ContactUsResponse>(response,HttpStatus.OK);
 				
 		}
-		status = Status.builder().code("400").type("FAILUTE").message("FAILED_TO_SAVE")
-				.description("Failed to Send Email").build();
-		response = ContactUsResponse.builder().data(data).status(status).build();
 		return new ResponseEntity<ContactUsResponse>(response,HttpStatus.BAD_REQUEST);
 	}
 }

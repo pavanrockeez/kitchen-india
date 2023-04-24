@@ -2,7 +2,6 @@ package com.mother.kitchen.apis.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import com.mother.kitchen.apis.modal.Status;
 import com.mother.kitchen.apis.modal.UserEmailMobileNumber;
 import com.mother.kitchen.apis.response.ContactUsResponse;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +40,42 @@ public class ContactUsService {
     private final String motherKitchenEmail = "we@motherskitchenindia.com";
     private final String adminEmail = "me@sreedhartruly.com";
     //me@sreedhartruly.com
+    
+    private String body = "<html><body style='background-color: #f5f5f5; font-family: Arial, sans-serif;'>"
+    		+ "<div style='width:100% ;max-width:500px;align-items: center; justify-content: center; flex-direction: column; margin: 0 auto; text-align: center;padding-top:10px'>"
+    		+ "<div style='text-align:center;'>"
+            + "<p style='font-weight: 500; font-size:13px; color: #18191B;'>Eat just like@home</p>"
+            + "<p style='font-weight: 700; font-size:18px; color:#9B000A;'>MOTHER'S KITCHEN</p>"
+            + "<div style='right:0'><p>Healthy & Spicy</div>"
+            + "</div>"
+            + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#9B000A; margin-bottom:20px ; text-align: center; padding-top: 50px;'>"
+            + "<p style='font-weight: 800; font-size: 20px; color: #ffffff;'>Thank you</p>"
+            + "<p style='font-weight: 600; font-size: 15px; color: #ffffff;'>for submitting contact information</p>"
+            + "</div>"
+            + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center; padding-top: 50px;'>"
+            + "<p style='font-weight:500; font-size:15px;color:#18191B'>Our team at Mother's Kitchen values your interest and will be in touch as soon as possible to address any questions or concerns you may have. We appreciate your time and look forward to providing you with the best possible service.</p>"
+            + "</div>"
+            + "<div style='text-align:center'><p style='font-weight:700; font-size:13px; color:#18191B'>OUR SERVICES</p></div>"
+            + "<div style='display:flex;'>"
+            + "<div style='width:100%;max-width: 250px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:10px ; text-align: center;display: inline-block; padding-top: 50px;'>"
+            + "<p style='font-weight:700; font-size:16px; color: #9B000A;'>Breakfast</p>"
+            + "<p style='font-weight:500; font-size:12px; color: #18191B;'>Power Up Your Day with Our Tech-Friendly Breakfast Options!</p>"
+            + "</div>"
+            + "<div style='width:100%;max-width: 250px; height: 150px; border-radius: 20px; margin-left:10px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center;display: inline-block; padding-top: 50px;'>"
+            + "<p style='font-weight:700; font-size:16px; color: #9B000A;'>Snacks</p>"
+            + "<p style='font-weight:500; font-size:12px; color: #18191B;'>Snack Time Just Got Better with Our Mouthwatering Treats</p>"
+            + "</div>"
+            + "</div>"
+            + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center; padding-top: 50px;padding-left:10px'>"
+            + "<p style='font-weight:500; font-size:13px; color:#18191B;'>If you need to reach us urgently, please feel free to email us at</p> "
+            + "<span style='font-weight:500; font-size:15px; color:#9B000A;'>info@motherskitchenindia.com</span><span style='font-weight:500; font-size:13px;'> or call us at</span> "
+            + "<span style='font-weight:500; font-size:15px; color:#9B000A'>9703 44 66 88</span>.<pstyle='font-weight:500; font-size:13px;'> Thank you again for considering Mother's Kitchen"
+            + " for your food needs!</p>"
+            + "</div>"
+            + "<div style='text-align:center;'>"
+            + "<p style='font-weight: 700; font-size:15px; color: #18191B;'>www.motherskitchenindia.com</p></div>"
+            + "</div>"
+            + "</body></html>";
 	
 	public ContactUsResponse saveContactUs(ContactUs req) throws MessagingException {
 		ContactUsResponse response =null;
@@ -124,41 +158,6 @@ public class ContactUsService {
 			helper.setFrom(motherKitchenEmail);
 			helper.setTo(req.getEmail());
 			helper.setSubject("Query Raised");
-			String body = "<html><body style='background-color: #f5f5f5; font-family: Arial, sans-serif;'>"
-	        		+ "<div style='width:100% ;max-width:500px;align-items: center; justify-content: center; flex-direction: column; margin: 0 auto; text-align: center;padding-top:10px'>"
-	        		+ "<div style='text-align:center;'>"
-	                + "<p style='font-weight: 500; font-size:13px; color: #18191B;'>Eat just like@home</p>"
-	                + "<p style='font-weight: 700; font-size:18px; color:#9B000A;'>MOTHER'S KITCHEN</p>"
-	                + "<div style='right:0'><p>Healthy & Spicy</div>"
-	                + "</div>"
-	                + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#9B000A; margin-bottom:20px ; text-align: center; padding-top: 50px;'>"
-	                + "<p style='font-weight: 800; font-size: 20px; color: #ffffff;'>Thank you</p>"
-	                + "<p style='font-weight: 600; font-size: 15px; color: #ffffff;'>for submitting contact information</p>"
-	                + "</div>"
-	                + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center; padding-top: 50px;'>"
-	                + "<p style='font-weight:500; font-size:15px;color:#18191B'>Our team at Mother's Kitchen values your interest and will be in touch as soon as possible to address any questions or concerns you may have. We appreciate your time and look forward to providing you with the best possible service.</p>"
-	                + "</div>"
-	                + "<div style='text-align:center'><p style='font-weight:700; font-size:13px; color:#18191B'>OUR SERVICES</p></div>"
-	                + "<div style='display:flex;'>"
-	                + "<div style='width:100%;max-width: 250px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:10px ; text-align: center;display: inline-block; padding-top: 50px;'>"
-	                + "<p style='font-weight:700; font-size:16px; color: #9B000A;'>Breakfast</p>"
-	                + "<p style='font-weight:500; font-size:12px; color: #18191B;'>Power Up Your Day with Our Tech-Friendly Breakfast Options!</p>"
-	                + "</div>"
-	                + "<div style='width:100%;max-width: 250px; height: 150px; border-radius: 20px; margin-left:10px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center;display: inline-block; padding-top: 50px;'>"
-	                + "<p style='font-weight:700; font-size:16px; color: #9B000A;'>Snacks</p>"
-	                + "<p style='font-weight:500; font-size:12px; color: #18191B;'>Snack Time Just Got Better with Our Mouthwatering Treats</p>"
-	                + "</div>"
-	                + "</div>"
-	                + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center; padding-top: 50px;padding-left:10px'>"
-	                + "<p style='font-weight:500; font-size:13px; color:#18191B;'>If you need to reach us urgently, please feel free to email us at</p> "
-	                + "<span style='font-weight:500; font-size:15px; color:#9B000A;'>info@motherskitchenindia.com</span><span style='font-weight:500; font-size:13px;'> or call us at</span> "
-	                + "<span style='font-weight:500; font-size:15px; color:#9B000A'>9703 44 66 88</span>.<pstyle='font-weight:500; font-size:13px;'> Thank you again for considering Mother's Kitchen"
-	                + " for your food needs!</p>"
-	                + "</div>"
-	                + "<div style='text-align:center;'>"
-	                + "<p style='font-weight: 700; font-size:15px; color: #18191B;'>www.motherskitchenindia.com</p></div>"
-	                + "</div>"
-	                + "</body></html>";
 			helper.setText(body, true);
 			javaMailSender.send(message);
 		} catch (MessagingException e) {
@@ -170,7 +169,6 @@ public class ContactUsService {
 	private void sendGmailToAdmin(UserEmailMobileNumber req) {
 		List<String> adminEmails = Arrays.asList(motherKitchenEmail, adminEmail);
 		String text ="";
-		System.out.println(req.getEmail());
 		if(req.getEmail().length() != 0 && !req.getEmail().equals("string")) {
 			text = req.getEmail();
 		} else {
@@ -204,41 +202,6 @@ public class ContactUsService {
 			helper.setFrom(motherKitchenEmail);
 			helper.setTo(email);
 			helper.setSubject("Thanks for reached us");
-	        String body = "<html><body style='background-color: #f5f5f5; font-family: Arial, sans-serif;'>"
-	        		+ "<div style='width:100% ;max-width:500px;align-items: center; justify-content: center; flex-direction: column; margin: 0 auto; text-align: center;padding-top:10px'>"
-	        		+ "<div style='text-align:center;'>"
-	                + "<p style='font-weight: 500; font-size:13px; color: #18191B;'>Eat just like@home</p>"
-	                + "<p style='font-weight: 700; font-size:18px; color:#9B000A;'>MOTHER'S KITCHEN</p>"
-	                + "<div style='right:0'><p>Healthy & Spicy</div>"
-	                + "</div>"
-	                + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#9B000A; margin-bottom:20px ; text-align: center; padding-top: 50px;'>"
-	                + "<p style='font-weight: 800; font-size: 20px; color: #ffffff;'>Thank you</p>"
-	                + "<p style='font-weight: 600; font-size: 15px; color: #ffffff;'>for submitting contact information</p>"
-	                + "</div>"
-	                + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center; padding-top: 50px;'>"
-	                + "<p style='font-weight:500; font-size:15px;color:#18191B'>Our team at Mother's Kitchen values your interest and will be in touch as soon as possible to address any questions or concerns you may have. We appreciate your time and look forward to providing you with the best possible service.</p>"
-	                + "</div>"
-	                + "<div style='text-align:center'><p style='font-weight:700; font-size:13px; color:#18191B'>OUR SERVICES</p></div>"
-	                + "<div style='display:flex;'>"
-	                + "<div style='width:100%;max-width: 250px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:10px ; text-align: center;display: inline-block; padding-top: 50px;'>"
-	                + "<p style='font-weight:700; font-size:16px; color: #9B000A;'>Breakfast</p>"
-	                + "<p style='font-weight:500; font-size:12px; color: #18191B;'>Power Up Your Day with Our Tech-Friendly Breakfast Options!</p>"
-	                + "</div>"
-	                + "<div style='width:100%;max-width: 250px; height: 150px; border-radius: 20px; margin-left:10px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center;display: inline-block; padding-top: 50px;'>"
-	                + "<p style='font-weight:700; font-size:16px; color: #9B000A;'>Snacks</p>"
-	                + "<p style='font-weight:500; font-size:12px; color: #18191B;'>Snack Time Just Got Better with Our Mouthwatering Treats</p>"
-	                + "</div>"
-	                + "</div>"
-	                + "<div style='width: 100%;max-width:500px; height: 150px; border-radius: 20px; background-color:#FFF4D2; margin-bottom:20px ; text-align: center; padding-top: 50px;padding-left:10px'>"
-	                + "<p style='font-weight:500; font-size:13px; color:#18191B;'>If you need to reach us urgently, please feel free to email us at</p> "
-	                + "<span style='font-weight:500; font-size:15px; color:#9B000A;'>info@motherskitchenindia.com</span><span style='font-weight:500; font-size:13px;'> or call us at</span> "
-	                + "<span style='font-weight:500; font-size:15px; color:#9B000A'>9703 44 66 88</span>.<pstyle='font-weight:500; font-size:13px;'> Thank you again for considering Mother's Kitchen"
-	                + " for your food needs!</p>"
-	                + "</div>"
-	                + "<div style='text-align:center;'>"
-	                + "<p style='font-weight: 700; font-size:15px; color: #18191B;'>www.motherskitchenindia.com</p></div>"
-	                + "</div>"
-	                + "</body></html>";
 			helper.setText(body, true);
 			javaMailSender.send(message);
 		} catch (MessagingException e) {

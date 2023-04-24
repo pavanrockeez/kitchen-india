@@ -173,9 +173,7 @@ public class ContactUsService {
 			text = req.getEmail();
 		} else {
 			text = req.getMobileNumber();
-			System.out.println("here");
 		}
-		System.out.println(text);
 		for(String adminEmail : adminEmails) {
 			try {
 				MimeMessage message = javaMailSender.createMimeMessage();

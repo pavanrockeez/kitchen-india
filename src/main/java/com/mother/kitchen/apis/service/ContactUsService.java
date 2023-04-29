@@ -6,13 +6,18 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.mother.kitchen.apis.dao.ContactUsDao;
 import com.mother.kitchen.apis.modal.ContactUs;
 import com.mother.kitchen.apis.modal.Status;
 import com.mother.kitchen.apis.modal.UserEmailMobileNumber;
 import com.mother.kitchen.apis.response.ContactUsResponse;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.mail.MessagingException;
@@ -23,24 +28,13 @@ import javax.mail.internet.MimeMessage;
 public class ContactUsService {
 	
 	@Autowired
-	private ContactUsDao contactUsDao;
-	
-	@Autowired
 	private JavaMailSender javaMailSender;
 	
-
-	
-    private static final String BASE_URL = "https://jdxenk.api.infobip.com";
-    private static final String API_KEY = "3ff253ccf8427e863e6ca79b36a60310-6f3290a6-ec65-4a81-90db-9c7f1aba9a41";
-
-    private static final String SENDER = "447491163443";
-    private static final String RECIPIENT = "919000369106";
-    private static final String MESSAGE_TEXT = "This is a sample message";
-    
-    private final String motherKitchenEmail = "we@motherskitchenindia.com";
+	private final String motherKitchenEmail = "we@motherskitchenindia.com";
     private final String adminEmail = "me@sreedhartruly.com";
-    //me@sreedhartruly.com
-    
+
+    File file = new File("ContactUsRequestValues.txt");
+    File file1 = new File("UserEmailMobileRequests.txt");
     private String body = "<html><body style='background-color: #f5f5f5; font-family: Arial, sans-serif;'>"
     		+ "<div style='width:100% ;max-width:500px;align-items: center; justify-content: center; flex-direction: column; margin: 0 auto; text-align: center;padding-top:10px'>"
     		+ "<div style='text-align:center;'>"
@@ -94,25 +88,18 @@ public class ContactUsService {
             response = ContactUsResponse.builder().status(status).build();
             return response;
         } else {
-        	long data = contactUsDao.saveContacUs(req);
-    		if(data>0) {
-    			sendEmailToUser(req.getEmail());
-    			sendEmailToAdmin(req);
-    			status = Status.builder().code("201").type("SUCCESS").message("QUERY_SAVED")
-						.description("Query Reached We Will Reach Out To you").build();
-    			response = ContactUsResponse.builder().data(data).status(status).build();
-    			return response;
-    		}
-    		status = Status.builder().code("400").type("FAILUTE").message("FAILED_TO_SAVE")
-    				.description("Failed to save query").build();
-    		response = ContactUsResponse.builder().data(data).status(status).build();
+        	writeRequestValuesToFile(req);
+    		sendEmailToUser(req.getEmail());
+    		sendEmailToAdmin(req);
+    		status = Status.builder().code("201").type("SUCCESS").message("QUERY_SAVED")
+					.description("Query Reached We Will Reach Out To you").build();
+    		response = ContactUsResponse.builder().status(status).build();
     		return response;
-        }
+    	}
 		
 	}
 	
 	public ContactUsResponse saveUserEmailAndMobileNumber(UserEmailMobileNumber req) {
-		ContactUsResponse response =null;
 		Status status = null;
 		String email =req.getEmail();
 		String mobileNumber = req.getMobileNumber();
@@ -130,24 +117,20 @@ public class ContactUsService {
 	        status = Status.builder().code("400").type("FAILURE").message("INVALID_INPUT")
 	                .description("Either email or mobile number is required").build();
 	    }
-
-	    // If validation fails, return failure response
 	    if (status != null) {
 	        return ContactUsResponse.builder().status(status).build();
 	    }
-
-	    // Save data and send notifications
-	    long data = contactUsDao.saveUserEmailAndMobileNumber(req);
-	    if (data > 0) {
-	        sendEmailMessageToUser(req);
-	        sendGmailToAdmin(req);
-	        status = Status.builder().code("201").type("SUCCESS").message("QUERY_SAVED")
-	                .description("Query reached. We will reach out to you.").build();
-	        return ContactUsResponse.builder().data(data).status(status).build();
-	    } else {
-	        status = Status.builder().code("400").type("FAILURE").message("FAILED_TO_SAVE")
-	                .description("Failed to save query").build();
-	        return ContactUsResponse.builder().data(data).status(status).build();
+	    try {
+	    	userEmailMobileRequestValues(req);
+	    	sendEmailMessageToUser(req);
+		    sendGmailToAdmin(req);
+		    status = Status.builder().code("201").type("SUCCESS").message("QUERY_SAVED")
+		               .description("Query reached. We will reach out to you.").build();
+		    return ContactUsResponse.builder().status(status).build();
+	    } catch(Exception e) {
+	        status = Status.builder().code("400").type("FAILURE").message(e.getMessage())
+	                .description("Failed to Details").build();
+	        return ContactUsResponse.builder().status(status).build();
 	    }
 	}
 		
@@ -161,7 +144,6 @@ public class ContactUsService {
 			helper.setText(body, true);
 			javaMailSender.send(message);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -180,14 +162,15 @@ public class ContactUsService {
 				MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 				helper.setFrom(motherKitchenEmail);
 				helper.setTo(adminEmail);
-				helper.setSubject("Thanks for reached us");
+				helper.setSubject("Contact Details");
 				String body = "<html><body style='background-color: #f5f5f5; font-family: Arial, sans-serif;'>"
-						+ "<p style='font-weight: bold;'>"+text+" Raised a Query</p>"
+						+ "<p style='font-weight: bold;'>"
+						+ "<span style='color:#9B000A; font-size:15px; font-weight:700px'>" + text + "</span>"
+						+ " User has contacted you</p>"
 			            + "</body></html>";
 				helper.setText(body, true);
 				javaMailSender.send(message);
 			} catch (MessagingException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -199,11 +182,10 @@ public class ContactUsService {
 			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 			helper.setFrom(motherKitchenEmail);
 			helper.setTo(email);
-			helper.setSubject("Thanks for reached us");
+			helper.setSubject("Thanks you for reached us");
 			helper.setText(body, true);
 			javaMailSender.send(message);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -237,10 +219,10 @@ public class ContactUsService {
 			helper.setText(htmlContent, true);
 			javaMailSender.send(message);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
 	private String emailBody(ContactUs req) {
 		String body = "<html><body style='background-color: #f5f5f5; font-family: Arial, sans-serif;'>"
 		           + "<p style='color: #333;'>Contact Details</p>"
@@ -257,13 +239,40 @@ public class ContactUsService {
 	    String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 	    return email.matches(emailRegex);
 	}
-
-	// Method to validate mobile number format using regex
+	
 	private boolean isValidMobileNumber(String mobileNumber) {
 	    String mobileNumberRegex = "^[0-9]{10}$";
 	    return mobileNumber.matches(mobileNumberRegex);
 	}
 	
-
+	private void writeRequestValuesToFile(ContactUs req) {
+	    try {
+	    	BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		    String timestamp = dateFormat.format(new Date());
+			writer.write(req.getName() + ", " + req.getMobileNumber() + ", " + req.getEmail() + ", " 
+			             + req.getSelectValue() + ", " + req.getMessage() + ", " + timestamp + "\n");
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void userEmailMobileRequestValues(UserEmailMobileNumber req) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file1, true));
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		    String timestamp = dateFormat.format(new Date());
+		    if(isValidEmail(req.getEmail())) {
+		    	writer.write(req.getEmail() + ", " + timestamp + "\n");
+		    } else {
+		    	writer.write(req.getMobileNumber() + ", " + timestamp + "\n");
+		    }
+			writer.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 }

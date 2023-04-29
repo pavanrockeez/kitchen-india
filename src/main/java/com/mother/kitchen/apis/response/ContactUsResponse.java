@@ -16,6 +16,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class ContactUsResponse {
-	private long data;
 	private Status status;
 }

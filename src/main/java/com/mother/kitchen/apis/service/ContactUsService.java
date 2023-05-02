@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.mother.kitchen.apis.modal.ContactUs;
 import com.mother.kitchen.apis.modal.Status;
-import com.mother.kitchen.apis.modal.UserEmailMobileNumber;
 import com.mother.kitchen.apis.response.ContactUsResponse;
 
 import java.io.BufferedWriter;
@@ -32,7 +31,7 @@ public class ContactUsService {
 	
 	private final String motherKitchenEmail = "we@motherskitchenindia.com";
     private final String adminEmail = "me@sreedhartruly.com";
-
+    
     File file = new File("ContactUsRequestValues.txt");
     File file1 = new File("UserEmailMobileRequests.txt");
     private String body = "<html>\r\n"
@@ -109,47 +108,50 @@ public class ContactUsService {
 		
 	}
 	
-	public ContactUsResponse saveUserEmailAndMobileNumber(UserEmailMobileNumber req) {
+	public ContactUsResponse saveUserEmailAndMobileNumber(String text) {
 		Status status = null;
-		String email =req.getEmail();
-		String mobileNumber = req.getMobileNumber();
-		if (email != null && !email.isEmpty() && !email.contains("string")) {
-	        if (!isValidEmail(email)) {
-	            status = Status.builder().code("400").type("FAILURE").message("INVALID_EMAIL_FORMAT")
-	                    .description("Email is required or has an invalid format").build();
-	        }
-	    } else if (mobileNumber != null && !mobileNumber.isEmpty() && !mobileNumber.contains("string")) {
-	        if (!isValidMobileNumber(mobileNumber)) {
-	            status = Status.builder().code("400").type("FAILURE").message("INVALID_MOBILE_NUMBER_FORMAT")
-	                    .description("Mobile number is required or has an invalid format").build();
-	        }
+		String inputValue =text.trim();
+		if (inputValue == null || inputValue.isEmpty()) {
+	        status = Status.builder()
+	                .code("400")
+	                .type("FAILURE")
+	                .message("INVALID_INPUT")
+	                .description("Input cannot be empty or null")
+	                .build();
+	    } else if (isValidEmail(inputValue) || isValidMobileNumber(inputValue)) {
+	    	try {
+		    	userEmailMobileRequestValues(text);
+		    	sendEmailMessageToUser(text);
+			    sendGmailToAdmin(text);
+			    status = Status.builder()
+		                .code("201")
+		                .type("SUCCESS")
+		                .message("SUCCESS_QUERY_REACHED")
+		                .description("Successfully Query Raised")
+		                .build();
+			    return ContactUsResponse.builder().status(status).build();
+		    } catch(Exception e) {
+		        status = Status.builder().code("400").type("FAILURE").message(e.getMessage())
+		                .description("Failed to Details").build();
+		        return ContactUsResponse.builder().status(status).build();
+		    }
 	    } else {
-	        status = Status.builder().code("400").type("FAILURE").message("INVALID_INPUT")
-	                .description("Either email or mobile number is required").build();
+	    	status = Status.builder()
+	                .code("400")
+	                .type("FAILURE")
+	                .message("INVALID_INPUT")
+	                .description("The input is not a valid email address or mobile number")
+	                .build();
 	    }
-	    if (status != null) {
-	        return ContactUsResponse.builder().status(status).build();
-	    }
-	    try {
-	    	userEmailMobileRequestValues(req);
-	    	sendEmailMessageToUser(req);
-		    sendGmailToAdmin(req);
-		    status = Status.builder().code("201").type("SUCCESS").message("QUERY_SAVED")
-		               .description("Query reached. We will reach out to you.").build();
-		    return ContactUsResponse.builder().status(status).build();
-	    } catch(Exception e) {
-	        status = Status.builder().code("400").type("FAILURE").message(e.getMessage())
-	                .description("Failed to Details").build();
-	        return ContactUsResponse.builder().status(status).build();
-	    }
+		return ContactUsResponse.builder().status(status).build();
 	}
 		
-	public void sendEmailMessageToUser(UserEmailMobileNumber req) {
+	public void sendEmailMessageToUser(String text) {
 		try {
 			MimeMessage message = javaMailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 			helper.setFrom(motherKitchenEmail);
-			helper.setTo(req.getEmail());
+			helper.setTo(text);
 			helper.setSubject("Query Raised");
 			helper.setText(body, true);
 			javaMailSender.send(message);
@@ -158,13 +160,11 @@ public class ContactUsService {
 		}
 	}
 	
-	private void sendGmailToAdmin(UserEmailMobileNumber req) {
+	private void sendGmailToAdmin(String text) {
 		List<String> adminEmails = Arrays.asList(motherKitchenEmail, adminEmail);
-		String text ="";
-		if(req.getEmail().length() != 0 && !req.getEmail().equals("string")) {
-			text = req.getEmail();
-		} else {
-			text = req.getMobileNumber();
+		String textValue ="";
+		if(text.length() != 0 && !text.equals("string")) {
+			textValue = text;
 		}
 		for(String adminEmail : adminEmails) {
 			try {
@@ -175,7 +175,7 @@ public class ContactUsService {
 				helper.setSubject("Contact Details");
 				String body = "<html><body style='background-color: #f5f5f5; font-family: Arial, sans-serif;'>"
 						+ "<p style='font-weight: bold;'>"
-						+ "<span style='color:#9B000A; font-size:15px; font-weight:700px'>" + text + "</span>"
+						+ "<span style='color:#9B000A; font-size:15px; font-weight:700px'>" + textValue + "</span>"
 						+ " User has contacted you</p>"
 			            + "</body></html>";
 				helper.setText(body, true);
@@ -268,15 +268,13 @@ public class ContactUsService {
 		}
 	}
 	
-	private void userEmailMobileRequestValues(UserEmailMobileNumber req) {
+	private void userEmailMobileRequestValues(String text) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(file1, true));
 		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		    String timestamp = dateFormat.format(new Date());
-		    if(isValidEmail(req.getEmail())) {
-		    	writer.write(req.getEmail() + ", " + timestamp + "\n");
-		    } else {
-		    	writer.write(req.getMobileNumber() + ", " + timestamp + "\n");
+		    if(text.length()>0) {
+		    	writer.write(text + ", " + timestamp + "\n");
 		    }
 			writer.close();
 			

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mother.kitchen.apis.modal.ContactUs;
 import com.mother.kitchen.apis.modal.Status;
-import com.mother.kitchen.apis.modal.UserEmailMobileNumber;
 import com.mother.kitchen.apis.response.ContactUsResponse;
 import com.mother.kitchen.apis.service.ContactUsService;
 
@@ -43,10 +42,10 @@ public class ContactUsController {
 		
 	}
 	
-	@PostMapping("save-mobile-email")
-	public ResponseEntity<ContactUsResponse> saveUserEmail(@RequestBody UserEmailMobileNumber req){
+	@PostMapping("save-mobile-email/input/{input}")
+	public ResponseEntity<ContactUsResponse> saveUserEmail(@PathVariable String input){
 		ContactUsResponse response = null;
-		response= contactUsService.saveUserEmailAndMobileNumber(req);
+		response= contactUsService.saveUserEmailAndMobileNumber(input);
 		if(response.getStatus().getCode().equalsIgnoreCase("201")) {
 			return new ResponseEntity<ContactUsResponse>(response,HttpStatus.OK);
 				
